@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import path from 'path';
 import { conectarMongo } from './database/cnx-mongo.js';
 import cors from 'cors'
 import bcrypt from 'bcryptjs';
@@ -17,6 +18,9 @@ const app = express();
 // Middleware para parsear JSON
 app.use(express.json());
 app.use(cors());
+
+// 1. Indicar la carpeta de archivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Conectar a MongoDB
 conectarMongo();
@@ -157,6 +161,12 @@ app.get('/api/health', async (req, res) => {
     } catch (error) {
         res.status(500).json({ status: 'ERROR', message: 'Error verificando conexion' });
     }
+});
+
+// 2. Manejar rutas del Frontend (Importante para SPAs como React o Vue)
+// Esto asegura que si refrescas la página en /dashboard, el backend devuelva el index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Puerto del servidor
